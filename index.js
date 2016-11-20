@@ -1,5 +1,6 @@
 var http = require('http'),
   express = require('express'),
+  cors = require('cors'),
   _ = require('lodash'),
   path = require('path'),
   discoverHub = require('./harmonyConnect'),
@@ -8,7 +9,7 @@ var http = require('http'),
   hubUtil = null;
 
 var app = express();
-
+app.use(cors());
 app.set('port', process.env.PORT || 5000);
 app.use(express.static(path.join(__dirname, 'public')));
 
@@ -100,12 +101,6 @@ app.post('/devices/:device/:command', function (req, res) {
   }
 });
 
-
-
-
-
-
-
 discoverHub(function (ip, add) {
   hubIp = ip;
   new HarmonyUtils(hubIp)
@@ -115,8 +110,8 @@ discoverHub(function (ip, add) {
 });
 
 http.createServer(app).listen(app.get('port'), function () {
-  if (process && process.env && process.env.NODE_ENV !== 'development') {
-    console.log = function () { };
-  }
+  // if (process && process.env && process.env.NODE_ENV !== 'development') {
+  //   console.log = function () { };
+  // }
   console.log('Express server listening on port ' + app.get('port'));
 });
