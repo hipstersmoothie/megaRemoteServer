@@ -4,9 +4,7 @@ var http = require('http'),
   _ = require('lodash'),
   path = require('path'),
   discoverHub = require('./harmonyConnect'),
-  HarmonyUtils = require('harmony-hub-util'),
-  hubIp = null,
-  hubUtil = null;
+  HarmonyUtils = require('harmony-hub-util');
 
 var app = express();
 app.use(cors());
@@ -25,93 +23,102 @@ function send(res) {
   }
 }
 
+function getResource(type, res, func) {
+  discoverHub(function (ip, online) {
+    var util;
+    
+    new HarmonyUtils(ip)
+      .then(function (hUtil) {
+        util = hUtil;
+        return func(hUtil)
+      })
+      .then(send(res), error(res, type))
+      .then(function () {
+        util.end();
+      })
+  });
+}
+
+// Utility
+
+app.post('/allOff', function (req, res) {
+  discoverHub(function (ip, online) {
+    var util;
+
+    new HarmonyUtils(ip)
+      .then(function (hUtil) {
+        util = hUtil;
+        return util.readDevices();
+      })
+      .then(function (res) {
+        _.forEach(res, function (device, index) {
+          setTimeout(function () {
+            console.log(device)
+            getResource('devices', res, function (hUtil) {
+              return hUtil.executeCommand(true, device, device == 'Vizio TV' ? 'PowerToggle' : 'PowerOff');
+            });
+          }, index * 1100)
+        })
+      }, error(res, 'allOff'))
+      .then(function () {
+        util.end();
+      })
+  });
+});
+
 // Activities
 
 app.get('/activities', function (req, res) {
-  if (hubIp && hubUtil) {
-    hubUtil.readActivities()
-      .then(send(res), error(res, 'activities'))
-  } else {
-    res.send('No hub');
-  }
+  getResource('activities', res, function (hUtil) {
+    return hUtil.readActivities();
+  });
 });
 
 app.get('/activities/current', function (req, res) {
-  if (hubIp && hubUtil) {
-    hubUtil.readCurrentActivity()
-      .then(send(res), error(res, 'activities'))
-  } else {
-    res.send('No hub');
-  }
+  getResource('activities', res, function (hUtil) {
+    return hUtil.readCurrentActivity();
+  });
 });
 
 app.get('/activities/:activity', function (req, res) {
-  if (hubIp && hubUtil) {
-    hubUtil._readActivityCommands(req.params.activity)
-      .then(send(res), error(res, 'activities'))
-  } else {
-    res.send('No hub');
-  }
+  getResource('activities', res, function (hUtil) {
+    return hUtil._readActivityCommands(req.params.activity);
+  });
 });
 
 app.post('/activities/:activity', function (req, res) {
-  if (hubIp && hubUtil) {
-    hubUtil.executeActivity(req.params.activity)
-      .then(send(res), error(res, 'activities'))
-  } else {
-    res.send('No hub');
-  }
+  getResource('activities', res, function (hUtil) {
+    return hUtil.executeActivity(req.params.activity)
+  });
 });
 
 app.post('/activities/:activity/:command', function (req, res) {
-  if (hubIp && hubUtil) {
-    hubUtil.executeActivityCommand(req.params.activity, req.params.command)
-      .then(send(res), error(res, 'activities'))
-  } else {
-    res.send('No hub');
-  }
+  console.log(req.params)
+  getResource('activities', res, function (hUtil) {
+    return hUtil.executeCommand(false, req.params.activity, req.params.command)
+  });
 });
 
 // Devices
 
 app.get('/devices', function (req, res) {
-  if (hubIp && hubUtil) {
-    hubUtil.readDevices()
-      .then(send(res), error(res, 'devices'))
-  } else {
-    res.send('No hub');
-  }
+  getResource('devices', res, function (hUtil) {
+    return hUtil.readDevices()
+  });
 });
 
 app.get('/devices/:device', function (req, res) {
-  if (hubIp && hubUtil) {
-    hubUtil._readDeviceCommands(req.params.device)
-      .then(send(res), error(res, 'devices'))
-  } else {
-    res.send('No hub');
-  }
+  getResource('devices', res, function (hUtil) {
+    return hUtil._readDeviceCommands(req.params.device)
+  });
 });
 
 app.post('/devices/:device/:command', function (req, res) {
-  if (hubIp && hubUtil) {
-    hubUtil.executeCommand(true, req.params.device, req.params.command)
-      .then(send(res), error(res, 'devices'))
-  } else {
-    res.send('No hub');
-  }
-});
-
-discoverHub(function (ip, add) {
-  hubIp = ip;
-  new HarmonyUtils(hubIp)
-    .then(function (hUtil) {
-      hubUtil = hUtil;
-    });
+  getResource('devices', res, function (hUtil) {
+    return hUtil.executeCommand(true, req.params.device, req.params.command)
+  });
 });
 
 http.createServer(app).listen(app.get('port'), function () {
-  // if (process && process.env && process.env.NODE_ENV !== 'development') {
-  //   console.log = function () { };
-  // }
   console.log('Express server listening on port ' + app.get('port'));
 });

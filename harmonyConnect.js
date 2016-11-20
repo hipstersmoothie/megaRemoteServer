@@ -1,20 +1,23 @@
 var events = require('events'),
   HarmonyHubDiscover = require('harmonyhubjs-discover'),
-  discover;
+  discover, ip = '192.168.0.24';
 
 function discoverHub(callBackFn) {
-  if (discover === null || discover === undefined) {
-    discover = new HarmonyHubDiscover(61991);
-  }
+  if (ip)
+    callBackFn(ip, true);
 
-  discover.on('online', function (hub) {
-    callBackFn(hub.ip, true);
-  });
-  discover.on('offline', function (hub) {
-    callBackFn(hub.ip, false);
-  });
+  // if (discover === null || discover === undefined) {
+  //   discover = new HarmonyHubDiscover(61991);
+  // }
 
-  discover.start();
+  // discover.on('online', function (hub) {
+  //   callBackFn(hub.ip, true);
+  // });
+  // discover.on('offline', function (hub) {
+  //   callBackFn(hub.ip, false);
+  // });
+
+  // discover.start();
 }
 
 module.exports = discoverHub;
