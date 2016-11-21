@@ -23,25 +23,50 @@ function send(res) {
   }
 }
 
-function getResource(type, res, func) {
+var queue = [],
+  firstRunCalled;
+
+function nextResource() {
+  if (queue.length) {
+    var nextCall = queue.pop();
+    getResource(nextCall.type, nextCall.res, nextCall.func, true);
+  }
+}
+
+function getResource(type, res, func, forceRun) {
+  console.log(firstRunCalled)
+  if (firstRunCalled && !forceRun) {
+    return queue.unshift({
+      type: type,
+      res: res,
+      func: func
+    })
+  }
+
+  firstRunCalled = true;
+
   discoverHub(function (ip, online) {
     var util;
-    
+
     new HarmonyUtils(ip)
       .then(function (hUtil) {
         util = hUtil;
+        nextResource();
         return func(hUtil)
-      })
+      }, error(res, type))
       .then(send(res), error(res, type))
       .then(function () {
         util.end();
+        if (!queue.length) {
+          firstRunCalled = false;
+        }
       })
   });
 }
 
 // Utility
 
-app.post('/allOff', function (req, res) {
+app.post('/allOff/:toggleSecondary', function (req, res) {
   discoverHub(function (ip, online) {
     var util;
 
@@ -53,9 +78,9 @@ app.post('/allOff', function (req, res) {
       .then(function (res) {
         _.forEach(res, function (device, index) {
           setTimeout(function () {
-            console.log(device)
+
             getResource('devices', res, function (hUtil) {
-              return hUtil.executeCommand(true, device, device == 'Vizio TV' ? 'PowerToggle' : 'PowerOff');
+              return hUtil.executeCommand(true, device, device == 'Vizio TV' && req.params.toggleSecondary == 'true' ? 'PowerToggle' : 'PowerOff');
             });
           }, index * 1100)
         })
@@ -93,7 +118,6 @@ app.post('/activities/:activity', function (req, res) {
 });
 
 app.post('/activities/:activity/:command', function (req, res) {
-  console.log(req.params)
   getResource('activities', res, function (hUtil) {
     return hUtil.executeCommand(false, req.params.activity, req.params.command)
   });
