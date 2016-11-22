@@ -23,10 +23,12 @@ function send(res) {
   }
 }
 
-var queue = [],
-  firstRunCalled;
+var queue = []
+  threads = [];
 
 function nextResource() {
+  threads.pop();
+
   if (queue.length) {
     var nextCall = queue.pop();
     getResource(nextCall.type, nextCall.res, nextCall.func, true);
@@ -34,7 +36,7 @@ function nextResource() {
 }
 
 function getResource(type, res, func, forceRun) {
-  if (firstRunCalled && !forceRun) {
+  if(threads.length === 2) {
     return queue.unshift({
       type: type,
       res: res,
@@ -42,7 +44,7 @@ function getResource(type, res, func, forceRun) {
     })
   }
 
-  firstRunCalled = true;
+  threads.push(type);
 
   discoverHub(function (ip, online) {
     var util;
@@ -55,14 +57,9 @@ function getResource(type, res, func, forceRun) {
       }, error(res, type))
       .then(function (res) {
         util.end();
-
-        if (!queue.length) {
-          firstRunCalled = false;
-        }
-
         return res;
-      })
-      .then(send(res), error(res, type))
+      }, error(res, type))
+      .then(send(res))
   });
 }
 
