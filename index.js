@@ -34,7 +34,6 @@ function nextResource() {
 }
 
 function getResource(type, res, func, forceRun) {
-  console.log(firstRunCalled)
   if (firstRunCalled && !forceRun) {
     return queue.unshift({
       type: type,
@@ -54,13 +53,16 @@ function getResource(type, res, func, forceRun) {
         nextResource();
         return func(hUtil)
       }, error(res, type))
-      .then(send(res), error(res, type))
-      .then(function () {
+      .then(function (res) {
         util.end();
+
         if (!queue.length) {
           firstRunCalled = false;
         }
+
+        return res;
       })
+      .then(send(res), error(res, type))
   });
 }
 
@@ -76,18 +78,16 @@ app.post('/allOff/:toggleSecondary', function (req, res) {
         return util.readDevices();
       })
       .then(function (res) {
-        _.forEach(res, function (device, index) {
-          setTimeout(function () {
-
-            getResource('devices', res, function (hUtil) {
-              return hUtil.executeCommand(true, device, device == 'Vizio TV' && req.params.toggleSecondary == 'true' ? 'PowerToggle' : 'PowerOff');
-            });
-          }, index * 1100)
+        util.end();
+        return res;
+      })
+      .then(function (devices) {
+        _.forEach(devices, function (device, index) {
+          getResource('devices', { send: _.noop }, function (hUtil) {
+            return hUtil.executeCommand(true, device, device == 'Vizio TV' && req.params.toggleSecondary == 'true' ? 'PowerToggle' : 'PowerOff');
+          });
         })
       }, error(res, 'allOff'))
-      .then(function () {
-        util.end();
-      })
   });
 });
 
