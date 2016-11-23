@@ -88,6 +88,38 @@ app.post('/allOff/:toggleSecondary', function (req, res) {
   });
 });
 
+var util = require('util'),
+    eiscp = require('eiscp');
+
+eiscp.connect();
+
+eiscp.on('debug', util.log);
+eiscp.on('error', util.log);
+
+app.get('/eiscp', function (req, res) {
+  res.send(eiscp.command("volume=query", function(res, err) {
+    console.log(err,res)
+  }))
+});
+
+
+eiscp.on('volume', function (arg) {
+    // Print received volume
+    console.log(util.format("\nVolume changed to: %s\n", arg));
+    // eiscp.close();
+});
+
+app.get('/volume', function (req, res) {
+  eiscp.command("volume=query")
+  eiscp.on('volume', function (volume) {
+    res.send({ volume: volume });
+  });
+});
+
+app.post('/volume/:level', function (req, res) {
+  res.send(eiscp.command("main.volume=" + req.params.level));
+});
+
 // Activities
 
 app.get('/activities', function (req, res) {
