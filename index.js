@@ -88,12 +88,12 @@ app.post('/allOff/:toggleSecondary', function (req, res) {
   });
 });
 
+// Volume
+
 var util = require('util'),
     eiscp = require('eiscp');
 
 eiscp.connect();
-
-eiscp.on('debug', util.log);
 eiscp.on('error', util.log);
 
 app.get('/volume', function (req, res) {
@@ -105,6 +105,55 @@ app.get('/volume', function (req, res) {
 
 app.post('/volume/:level', function (req, res) {
   res.send(eiscp.command("main.volume=" + req.params.level));
+});
+
+// Lights
+
+var HueApi = require("node-hue-api").HueApi,
+  request = require('superagent');
+
+var displayResult = function(result) {
+    console.log(JSON.stringify(result, null, 2));
+};
+
+var hostname = "192.168.0.2",
+    username = "FcJqOpkx2ypbqUhrdTWGog9pAmDKGjpNn04hNITh",
+    livingRoomLights = ["6", "5", "7", "21", "20", "24"],
+    livingRoomLightNames = [
+      "Recliner", 
+      "Entryway",
+      "TV Corner",
+      "Upper 1",
+      "Upper 2",
+      "Beehive"
+    ],
+    api;
+
+api = new HueApi(hostname, username);
+
+app.get('/lights', function (req, res) {
+  res.send(_.zip(livingRoomLights, livingRoomLightNames));
+});
+
+app.get('/scenes', function (req, res) {
+  api.scenes(function(err, result) {
+    if (err) throw err;
+    res.send(_.filter(result, function(scene) {
+      return scene.recycle !== true && _.find(scene.lights, function(light) {
+        return livingRoomLights.indexOf(light) > -1;
+      })
+    }));
+  });
+});
+
+app.post('/scenes/:scene', function (req, res) {
+  request
+    .put('http://' + hostname + '/api/FcJqOpkx2ypbqUhrdTWGog9pAmDKGjpNn04hNITh/groups/Living%20Room/action')
+    .send({"scene": req.params.scene })
+    .set('Accept', 'application/json')
+    .end(function(err, result) {
+      res.send(result);
+    });
 });
 
 // Activities

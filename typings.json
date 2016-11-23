@@ -1,5 +1,6 @@
 {
   "globalDependencies": {
-    "cors": "registry:dt/cors#0.0.0+20160708202709"
+    "cors": "registry:dt/cors#0.0.0+20160708202709",
+    "superagent": "registry:dt/superagent#2.0.0+20160906143408"
   }
 }

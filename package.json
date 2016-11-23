@@ -14,6 +14,8 @@
     "express": "3.3.4",
     "harmony-hub-util": "^1.1.2",
     "harmonyhubjs-discover": "1.0.0",
-    "lodash": "^3.8.0"
+    "lodash": "^3.8.0",
+    "node-hue-api": "^2.3.0",
+    "superagent": "^3.0.0"
   }
 }
