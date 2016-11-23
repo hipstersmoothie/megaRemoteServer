@@ -1,0 +1,5 @@
+{
+  "globalDependencies": {
+    "cors": "registry:dt/cors#0.0.0+20160708202709"
+  }
+}
