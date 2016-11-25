@@ -86,6 +86,14 @@ app.post('/allOff/:toggleSecondary', function (req, res) {
         })
       }, error(res, 'allOff'))
   });
+
+  request
+    .put('http://' + hostname + '/api/FcJqOpkx2ypbqUhrdTWGog9pAmDKGjpNn04hNITh/groups/Living%20Room/action')
+    .send({"on": false })
+    .set('Accept', 'application/json')
+    .end(function(err, result) {
+      res.send(result);
+    });
 });
 
 // Volume
