@@ -102,7 +102,9 @@ var util = require('util'),
     eiscp = require('eiscp');
 
 eiscp.connect();
+eiscp.on('debug', util.log);
 eiscp.on('error', util.log);
+eiscp.on('connect', util.log);
 
 app.get('/volume', function (req, res) {
   eiscp.command("volume=query")
@@ -124,9 +126,16 @@ var displayResult = function(result) {
     console.log(JSON.stringify(result, null, 2));
 };
 
-var hostname = "192.168.0.2",
+var hostname = "192.168.1.2",
     username = "FcJqOpkx2ypbqUhrdTWGog9pAmDKGjpNn04hNITh",
-    livingRoomLights = ["6", "5", "7", "21", "20", "24"],
+    livingRoomLights = [
+      "6",
+      "5",
+      "7",
+      "21",
+      "20",
+      "24"
+    ],
     livingRoomLightNames = [
       "Recliner", 
       "Entryway",
