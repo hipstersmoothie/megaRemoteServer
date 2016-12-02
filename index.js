@@ -163,6 +163,13 @@ app.get('/scenes', function (req, res) {
   });
 });
 
+app.get('/scenes/:scene', function (req, res) {
+  api.getScene(req.params.scene, function(err, result) {
+    if (err) throw err;
+    res.send(result)
+  });
+});
+
 app.post('/scenes/:scene', function (req, res) {
   request
     .put('http://' + hostname + '/api/FcJqOpkx2ypbqUhrdTWGog9pAmDKGjpNn04hNITh/groups/1/action')
