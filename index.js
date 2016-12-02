@@ -88,7 +88,7 @@ app.post('/allOff/:toggleSecondary', function (req, res) {
   });
 
   request
-    .put('http://' + hostname + '/api/FcJqOpkx2ypbqUhrdTWGog9pAmDKGjpNn04hNITh/groups/Living%20Room/action')
+    .put('http://' + hostname + '/api/FcJqOpkx2ypbqUhrdTWGog9pAmDKGjpNn04hNITh/groups/1/action')
     .send({"on": false })
     .set('Accept', 'application/json')
     .end(function(err, result) {
@@ -156,7 +156,7 @@ app.get('/scenes', function (req, res) {
 
 app.post('/scenes/:scene', function (req, res) {
   request
-    .put('http://' + hostname + '/api/FcJqOpkx2ypbqUhrdTWGog9pAmDKGjpNn04hNITh/groups/Living%20Room/action')
+    .put('http://' + hostname + '/api/FcJqOpkx2ypbqUhrdTWGog9pAmDKGjpNn04hNITh/groups/1/action')
     .send({"scene": req.params.scene })
     .set('Accept', 'application/json')
     .end(function(err, result) {
