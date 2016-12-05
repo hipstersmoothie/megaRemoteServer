@@ -104,17 +104,29 @@ var util = require('util'),
 eiscp.connect();
 eiscp.on('debug', util.log);
 eiscp.on('error', util.log);
-eiscp.on('connect', util.log);
 
-app.get('/volume', function (req, res) {
-  eiscp.command("volume=query")
+var c;
+var command = function() {
+  if(c) {
+    eiscp.command(c);
+    c = null;
+  }
+};
+
+eiscp.on('connect', command);
+
+app.get('/volume', function (req, res) {  
+  c = "volume=query";
+  eiscp.command(c);
+
   eiscp.on('volume', function (volume) {
     res.send({ volume: volume });
   });
 });
 
 app.post('/volume/:level', function (req, res) {
-  res.send(eiscp.command("main.volume=" + req.params.level));
+  c = "main.volume=" + req.params.level;
+  res.send(eiscp.command(c));
 });
 
 // Lights
