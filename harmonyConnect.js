@@ -1,6 +1,6 @@
 var events = require('events'),
   HarmonyHubDiscover = require('harmonyhubjs-discover'),
-  discover, ip = '192.168.1.8';
+  discover, ip = '192.168.1.6';
 
 function discoverHub(callBackFn) {
   if (ip)

@@ -192,6 +192,45 @@ app.post('/scenes/:scene', function (req, res) {
     });
 });
 
+app.get('/brightness', function (req, res) {
+  request
+    .get('http://' + hostname + '/api/FcJqOpkx2ypbqUhrdTWGog9pAmDKGjpNn04hNITh/groups/1/')
+    .end(function(err, result) {
+      if (result.text) {
+        var brightness = (JSON.parse(result.text).action.bri / 255) * 100;
+        res.send({bri: brightness});
+      } else {
+        res.send(null);
+      }
+    });
+});
+
+app.post('/brightness/:bri', function (req, res) {
+  request
+    .put('http://' + hostname + '/api/FcJqOpkx2ypbqUhrdTWGog9pAmDKGjpNn04hNITh/groups/1/action')
+    .send({ bri: Math.round((parseInt(req.params.bri) / 100) * 255) })
+    .set('Accept', 'application/json')
+    .end(function(err, result) {
+        res.send(result);
+    });
+});
+
+var ColorScheme = require('color-scheme');
+
+// Returns a random number between min (inclusive) and max (exclusive)
+function getRandomArbitrary(min, max) {
+  return Math.random() * (max - min) + min;
+}
+
+app.post('/scenes/:scene', function (req, res) {
+  var scheme = new ColorScheme;
+  scheme.from_hue(getRandomArbitrary(360))         
+    .scheme('triade')   
+    .variation('soft');
+
+  var colors = scheme.colors();
+});
+
 // Activities
 
 app.get('/activities', function (req, res) {
