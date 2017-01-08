@@ -231,6 +231,7 @@ app.post('/scenes/:scene', function (req, res) {
   var colors = scheme.colors();
 });
 
+
 // Activities
 
 app.get('/activities', function (req, res) {
