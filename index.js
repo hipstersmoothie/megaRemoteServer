@@ -120,7 +120,9 @@ app.get('/volume', function (req, res) {
   eiscp.command(c);
 
   eiscp.on('volume', function (volume) {
-    res.send({ volume: volume });
+    try {
+      res.send({ volume: volume });
+    } catch (e) {}
   });
 });
 
