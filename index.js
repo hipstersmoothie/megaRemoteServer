@@ -64,10 +64,14 @@ function getResource(type, res, func, forceRun) {
 }
 
 // Utility
+const Hs100Api = require('hs100-api');
+const client = new Hs100Api.Client();
+const plug = client.getPlug({host: '192.168.1.41'});
 
-app.post('/allOff/:toggleSecondary', function (req, res) {
+app.post('/allOff/', function (req, res) {
   discoverHub(function (ip, online) {
     var util;
+    var devices;
 
     new HarmonyUtils(ip)
       .then(function (hUtil) {
@@ -78,10 +82,14 @@ app.post('/allOff/:toggleSecondary', function (req, res) {
         util.end();
         return res;
       })
-      .then(function (devices) {
+      .then(function (res) {
+        devices = res;
+        return plug.getConsumption();
+      })
+      .then(function (consumption) {
         _.forEach(devices, function (device, index) {
           getResource('devices', { send: _.noop }, function (hUtil) {
-            return hUtil.executeCommand(true, device, device == 'Vizio TV' && req.params.toggleSecondary == 'true' ? 'PowerToggle' : 'PowerOff');
+            return hUtil.executeCommand(true, device, device == 'Vizio TV' && consumption.get_realtime.power > 50 ? 'PowerToggle' : 'PowerOff');
           });
         })
       }, error(res, 'allOff'))
