@@ -286,9 +286,23 @@ app.get('/devices/:device', function (req, res) {
 });
 
 app.post('/devices/:device/:command', function (req, res) {
-  getResource('devices', res, function (hUtil) {
-    return hUtil.executeCommand(true, req.params.device, req.params.command)
-  });
+  if (req.params.device === 'Vizio TV' && req.params.command === 'PowerOn') {
+    plug.getConsumption().then((consumption) => {
+      if (consumption.get_realtime.power < 50) {
+        doCommand('PowerToggle');
+      } else {
+        res.send(false);
+      }
+    });
+  } else {
+    doCommand();
+  }
+
+  function doCommand(command) {
+    getResource('devices', res, function (hUtil) {
+      return hUtil.executeCommand(true, req.params.device, command || req.params.command)
+    });
+  }
 });
 
 http.createServer(app).listen(app.get('port'), function () {
