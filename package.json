@@ -2,9 +2,11 @@
   "name": "mega-remote-server",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "./src/index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "node_modules/babel/bin/babel.js src --source-maps --out-dir dist",
+    "start": "node_modules/nodemon/bin/nodemon.js -- node_modules/babel/bin/babel-node.js src/index.js"
   },
   "author": "",
   "license": "ISC",
@@ -18,5 +20,14 @@
     "lodash": "^4.17.2",
     "node-hue-api": "^2.3.0",
     "superagent": "^3.2.1"
+  },
+  "devDependencies": {
+    "babel": "5.8.29",
+    "eslint": "^3.14.1",
+    "eslint-config-airbnb": "^14.0.0",
+    "eslint-plugin-import": "^2.2.0",
+    "eslint-plugin-jsx-a11y": "^3.0.2",
+    "eslint-plugin-react": "^6.9.0",
+    "nodemon": "1.8.0"
   }
 }

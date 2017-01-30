@@ -1,10 +1,13 @@
-var events = require('events'),
-  HarmonyHubDiscover = require('harmonyhubjs-discover'),
-  discover, ip = '192.168.1.6';
+// import events from 'events';
+// import HarmonyHubDiscover from 'harmonyhubjs-discover';
 
-function discoverHub(callBackFn) {
-  if (ip)
-    return callBackFn(ip, true);
+// let discover;
+const ip = '192.168.1.6';
+
+export default function discoverHub(callBackFn) {
+  if (ip) {
+    callBackFn(ip, true);
+  }
 
   // if (discover === null || discover === undefined) {
   //   discover = new HarmonyHubDiscover(61992);
@@ -25,5 +28,3 @@ function discoverHub(callBackFn) {
 
   // discover.start();
 }
-
-module.exports = discoverHub;
