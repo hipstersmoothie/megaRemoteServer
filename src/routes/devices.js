@@ -44,6 +44,9 @@ function VizioOn(req, res) {
 router.post('/switch', (req, res) => {
   doCommand(req, { send: () => {} }, 'Onkyo AV Receiver', secondary);
   doCommand(req, res, 'Onkyo AV Receiver (2)', main);
+
+  secondary = main;
+  main = secondary;
 });
 
 router.post('/devices/:device/:command', (req, res) => {
